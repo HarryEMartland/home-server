@@ -1,0 +1,73 @@
+services:
+  mealie:
+    image: ghcr.io/mealie-recipes/mealie:v1.10.2
+    container_name: mealie
+    restart: always
+    hostname: mealie
+    ports:
+      - "9925:9000"
+    deploy:
+      resources:
+        limits:
+          memory: 1000M #
+    volumes:
+      - mealie-data:/app/data/
+    environment:
+      ALLOW_SIGNUP: false
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/London
+      MAX_WORKERS: 1
+      WEB_CONCURRENCY: 1
+      BASE_URL: https://mealie.harrymartland.co.uk
+      DB_ENGINE: postgres
+      POSTGRES_USER: mealie
+      POSTGRES_PASSWORD: "op://Private/Mealie DB/password"
+      POSTGRES_SERVER: mealie-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: mealie
+      OPENAI_MODEL: gpt-3.5-turbo-0125
+      OPENAI_API_KEY: "op://Private/sbt25hr7xou2newdnvciiturua/credential"
+      SMTP_HOST: smtp.gmail.com
+      SMTP_AUTH_STRATEGY: TLS
+      SMTP_FROM_EMAIL: harryemartland@gmail.com
+      SMTP_USER: harryemartland@gmail.com
+      SMTP_PASSWORD: "op://Private/urfouozoi7p7nlmtoz27za6mim/credential"
+    depends_on:
+      mealie-postgres:
+        condition: service_healthy
+
+  mealie-postgres:
+    container_name: mealie-postgres
+    image: postgres:15
+    restart: always
+    labels:
+      - io.containers.autoupdate=registry
+    volumes:
+      - mealie-pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: mealie
+      POSTGRES_PASSWORD: "op://Private/Mealie DB/password"
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+  mealie-backup:
+    container_name: mealie-backup
+    image: mealie-backup
+    build: ./backup
+    restart: always
+    environment:
+      AWS_ACCESS_KEY_ID: op://Private/mealie-pg-backup/username"
+      AWS_SECRET_ACCESS_KEY: "op://Private/mealie-pg-backup/credential"
+      AWS_DEFAULT_REGION: eu-west-1
+      S3PATH: s3://mealie-pg-backup
+      USERNAME: harry
+      PASSWORD: "op://Private/Mealie/password"
+      HOST: http://mealie:9000
+
+volumes:
+  mealie-data:
+  mealie-pgdata:
+  mealie-pgbackup:

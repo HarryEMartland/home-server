@@ -1,0 +1,22 @@
+variant: fcos
+version: 1.5.0
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys:
+        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHDOmSttUrB/BMtuBg7UB/reTEBoyXTR4a1SKkX4I7GATYa4nCbxUFhNAfBao2XHM9OeUnHJAojZyEt2NcLa+vO4ESjuEh4njkiSdGwB4StHAIeNk8xX7BgHac/vP5u3EOib+yobQi9RdsQ6NyXi7NJuclrSMmKPYy8h4GTZ38TrexZM3CLaoQokU2+ZQ9/cxiQrsH4L2gSFO1J41c7Hy2KmIeizd1UjeUy/UOuKZurEjZYaLG1Gb6s1xssymPwIcuhNO6RdmAzBTY2yTcJAn0utGWQpVBEQ2VPTejjPLrmdfZdIp9Qt+6jwZ444L6pNvkdZ2gDNS0ontQHUdAEGxD martlandh@cq3zp72.traveljigsaw.local
+      groups:
+        - docker
+storage:
+    files:
+    - path: /etc/zincati/config.d/51-rollout-wariness.toml
+      contents:
+          inline: |
+              [updates]
+              strategy = "periodic"
+              [identity]
+              rollout_wariness = 0.5
+              [[updates.periodic.window]]
+              days = [ "Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri" ]
+              start_time = "03:00"
+              length_minutes = 60

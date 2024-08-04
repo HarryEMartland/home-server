@@ -4,7 +4,5 @@ services:
     image: cloudflare/cloudflared
     restart: always
     command: tunnel run
-    labels:
-      - io.containers.autoupdate=registry
     environment:
       - TUNNEL_TOKEN=op://Private/hh2ty67fbgmj7cq5432jcideay/credential

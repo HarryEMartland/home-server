@@ -1,6 +1,6 @@
 services:
   mealie:
-    image: ghcr.io/mealie-recipes/mealie:v1.10.2
+    image: ghcr.io/mealie-recipes/mealie:v1.11.0
     container_name: mealie
     restart: always
     hostname: mealie
@@ -11,7 +11,7 @@ services:
         limits:
           memory: 1000M #
     volumes:
-      - mealie-data:/app/data/
+      - mealie-data:/app/data/:Z
     environment:
       ALLOW_SIGNUP: false
       PUID: 1000
@@ -36,13 +36,16 @@ services:
     depends_on:
       mealie-postgres:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "app/mealie/scripts/healthcheck.py" ]
+      interval: 30s
+      timeout: 20s
+      retries: 4
 
   mealie-postgres:
     container_name: mealie-postgres
     image: postgres:15
     restart: always
-    labels:
-      - io.containers.autoupdate=registry
     volumes:
       - mealie-pgdata:/var/lib/postgresql/data
     environment:

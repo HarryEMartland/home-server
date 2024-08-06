@@ -28,6 +28,6 @@ curl -o "/$backupName" "$HOST/api/utils/download?token=$backupToken" \
 --retry 3 \
 -H "Authorization: Bearer $auth"
 
-aws s3 cp "/$backupName" "$S3PATH/$backupName"
+aws s3 cp --storage-class GLACIER_IR "/$backupName" "$S3PATH/$backupName"
 
 rm "/$backupName"

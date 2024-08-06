@@ -53,16 +53,19 @@ services:
       POSTGRES_PASSWORD: "op://Private/Mealie DB/password"
     healthcheck:
       test: ["CMD", "pg_isready"]
-      interval: 30s
+      interval: 10s
       timeout: 20s
-      retries: 3
+      retries: 4
   mealie-backup:
     container_name: mealie-backup
     image: mealie-backup
     build: ./backup
     restart: always
+    depends_on:
+      mealie:
+        condition: service_healthy
     environment:
-      AWS_ACCESS_KEY_ID: op://Private/mealie-pg-backup/username"
+      AWS_ACCESS_KEY_ID: "op://Private/mealie-pg-backup/username"
       AWS_SECRET_ACCESS_KEY: "op://Private/mealie-pg-backup/credential"
       AWS_DEFAULT_REGION: eu-west-1
       S3PATH: s3://mealie-pg-backup

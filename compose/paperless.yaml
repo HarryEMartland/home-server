@@ -55,7 +55,7 @@ services:
       retries: 3
 
   paperless:
-    image: ghcr.io/paperless-ngx/paperless-ngx:2.11.2
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.11.6
     restart: always
     container_name: paperless
     hostname: paperless
@@ -67,7 +67,7 @@ services:
     volumes:
       - data:/usr/src/paperless/data
       - media:/usr/src/paperless/media
-#      - ./export:/usr/src/paperless/export
+      - paperless-export:/usr/src/paperless/export
 #      - ./consume:/usr/src/paperless/consume
     environment:
       PAPERLESS_URL: https://paperless.harrymartland.co.uk
@@ -95,8 +95,28 @@ services:
     hostname: tika
     image: docker.io/apache/tika:latest
     restart: always
+
+  paperless-backup:
+    container_name: paperless-backup
+    image: paperless-backup
+    build: ./paperless-backup
+    restart: always
+    depends_on:
+      paperless:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: "op://Private/paperless-backup/username"
+      AWS_SECRET_ACCESS_KEY: "op://Private/paperless-backup/password"
+      AWS_DEFAULT_REGION: eu-west-1
+      S3PATH: s3://paperless-backup/media
+    volumes:
+      - media:/paperless/media
+      - data:/paperless/data
+      - paperless-export:/paperless/export
+
 volumes:
   data:
   media:
   pgdata:
   redisdata:
+  paperless-export:
